@@ -4,25 +4,22 @@ import sys
 import socket
 import selectors
 import traceback
+import hashlib
 
 import libclient
 
 sel = selectors.DefaultSelector()
 
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+    
 
-def create_request(action, value):
-    if action == "search":
-        return dict(
-            type="text/json",
-            encoding="utf-8",
-            content=dict(action=action, value=value),
-        )
-    else:
-        return dict(
-            type="binary/custom-client-binary-type",
-            encoding="binary",
-            content=bytes(action + value, encoding="utf-8"),
-        )
+def create_request(name, password):
+    return dict(
+        type="text/json",
+        encoding="utf-8",
+        content=dict(name=name, password=hash_password(password)),
+    )
 
 
 def start_connection(host, port, request):
@@ -37,12 +34,12 @@ def start_connection(host, port, request):
 
 
 if len(sys.argv) != 5:
-    print("usage:", sys.argv[0], "<host> <port> <action> <value>")
+    print("usage:", sys.argv[0], "<host> <port> <name> <password>")
     sys.exit(1)
 
 host, port = sys.argv[1], int(sys.argv[2])
-action, value = sys.argv[3], sys.argv[4]
-request = create_request(action, value)
+name, password = sys.argv[3], sys.argv[4]
+request = create_request(name, password)
 start_connection(host, port, request)
 
 try:

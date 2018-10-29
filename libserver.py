@@ -4,10 +4,11 @@ import json
 import io
 import struct
 
-request_search = {
-    "morpheus": "Follow the white rabbit. \U0001f430",
-    "ring": "In the caves beneath the Misty Mountains. \U0001f48d",
-    "\U0001f436": "\U0001f43e Playing ball! \U0001f3d0",
+userCredentials = {
+    # password is the sha256 hash of the name
+    "duc": "3adc9434176bf6ede9a58d200168be348e8feb7a13903efb244daf5692846a8e",
+    "michael": "34550715062af006ac4fab288de67ecb44793c3a05c475227241535f6ef7a81b",
+    "edgar": "8849853b957fe153b7056d0e7d65f99fb21070daf5122ddf1d7c942d4643c33d",
 }
 
 
@@ -88,14 +89,18 @@ class Message:
         message = message_hdr + jsonheader_bytes + content_bytes
         return message
 
+    def _check_credentials(self):
+        name = self.request.get("name")
+        password = self.request.get("password")
+        userPassword = userCredentials.get(name)
+        return userPassword and userPassword == password
+
     def _create_response_json_content(self):
-        action = self.request.get("action")
-        if action == "search":
-            query = self.request.get("value")
-            answer = request_search.get(query) or f'No match for "{query}".'
-            content = {"result": answer}
-        else:
-            content = {"result": f'Error: invalid action "{action}".'}
+        answer = "Username and/or password are not registered in the database"
+        isValid = self._check_credentials()
+        if isValid:
+            answer = "Valid credentials"
+        content = {"result": answer}
         content_encoding = "utf-8"
         response = {
             "content_bytes": self._json_encode(content, content_encoding),
