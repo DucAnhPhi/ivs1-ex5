@@ -1,3 +1,8 @@
+# code based on https://github.com/realpython/materials/tree/master/python-sockets-tutorial
+# Heidelberg University
+# Duc Anh Phi, Michael Tabachnik, Edgar Brotzmann
+# Solution to Problem Set 1 IVS Exercise 5
+
 import sys
 import selectors
 import json
